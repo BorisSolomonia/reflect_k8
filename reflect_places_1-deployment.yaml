@@ -16,7 +16,7 @@ spec:
         - name: reflect-places-1
           image: borissolomonia/reflect_places_1:latest #dockerhub ზე განთავსებული იმიჯია საჭირო
           ports:
-            - containerPort: 8081
+            - containerPort: 8085
           env:
             - name: EUREKA_SERVER_ADDRESS
               value: "http://reflect-service-registry:8761/eureka"
@@ -31,7 +31,7 @@ metadata:
   name: reflect-places-1
 spec:
   ports:
-    - port: 8081
-      targetPort: 8081
+    - port: 8085
+      targetPort: 8085
   selector:
     app: reflect-places-1
