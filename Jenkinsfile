@@ -13,22 +13,23 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/BorisSolomonia/reflection-auth-server.git', branch: 'master', credentialsId: "${GIT_CREDENTIALS_ID}"
+                git url: 'https://github.com/BorisSolomonia/reflect_k8.git', branch: 'master', credentialsId: "${GIT_CREDENTIALS_ID}"
             }
         }
         stage('Deploy') {
-            step([
-                $class: 'KubernetesEngineBuilder',
-                projectId: env.PROJECT_ID,
-                cluster: "${env.CLUSTER} (${env.ZONE})", // Ensure this is correct
-                location: env.ZONE,
-                manifestPattern: 'auth-server-deployment.yaml',
-                credentialsId: "${PROJECT_ID}",
-                verifyDeployments: true
-                ])
+            steps {
+                script {
+                    step([
+                        $class: 'KubernetesEngineBuilder',
+                        projectId: env.PROJECT_ID,
+                        cluster: env.CLUSTER,  // Corrected format
+                        location: env.ZONE,
+                        manifestPattern: 'postgres-deployment.yaml',
+                        credentialsId: env.GC_KEY,  // Using the correct credentials ID
+                        verifyDeployments: true
+                    ])
+                }
+            }
         }
     }
 }
-
-
-// 110a83ce1c1a570377622e785f6d6db375
