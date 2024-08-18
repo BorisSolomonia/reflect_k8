@@ -7,7 +7,7 @@ pipeline {
         PROJECT_ID = 'reflection01-431417'
         ARTIFACT_REGISTRY = 'reflection-artifacts'
         CLUSTER = 'reflection-cluster-1'
-        ZONE = 'us-central1'  // Ensure this matches the zone where your cluster is located
+        ZONE = 'us-central1-a'  // Specify the correct zone for your cluster
         REPO_URL = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}"
     }
     stages {
@@ -22,10 +22,10 @@ pipeline {
                     step([
                         $class: 'KubernetesEngineBuilder',
                         projectId: env.PROJECT_ID,
-                        cluster: env.CLUSTER,  // Corrected cluster field
-                        location: env.ZONE,
+                        cluster: env.CLUSTER,  
+                        location: env.ZONE,  // Ensure this matches the correct zone format
                         manifestPattern: 'postgres-deployment.yaml',
-                        credentialsId: env.GC_KEY,  // Using the correct credentials ID
+                        credentialsId: env.GC_KEY,
                         verifyDeployments: true
                     ])
                 }
