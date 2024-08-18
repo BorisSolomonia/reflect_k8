@@ -1,3 +1,72 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: postgres
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: postgres
+#   template:
+#     metadata:
+#       labels:
+#         app: postgres
+#     spec:
+#       containers:
+#         - name: postgres
+#           image: postgres:13
+#           ports:
+#             - containerPort: 5432
+#           env:
+#             - name: POSTGRES_DB
+#               value: postgres
+#             - name: POSTGRES_USER
+#               value: postgres
+#             - name: POSTGRES_PASSWORD
+#               value: postgres
+#           volumeMounts:
+#             - name: postgres-storage
+#               mountPath: /var/lib/postgresql/data/db
+#           resources:   # Add resources section if needed
+#             requests:
+#               memory: "512Mi"
+#               cpu: "500m"
+#             limits:
+#               memory: "1Gi"
+#               cpu: "1"
+#       volumes:
+#         - name: postgres-storage
+#           persistentVolumeClaim:
+#             claimName: postgres-pvc
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: postgres
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: postgres
+#   ports:
+#     - port: 5432
+#       targetPort: 5432
+
+# ---
+
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: postgres-pvc
+# spec:
+#   storageClassName: standard
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 1Gi
+
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,6 +81,13 @@ spec:
       labels:
         app: postgres
     spec:
+      initContainers:   # This container runs before the main postgres container
+        - name: init-postgres
+          image: busybox
+          command: ['sh', '-c', 'rm -rf /var/lib/postgresql/data/db/*']
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data/db
       containers:
         - name: postgres
           image: postgres:13
@@ -27,18 +103,10 @@ spec:
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data/db
-          resources:   # Add resources section if needed
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "1Gi"
-              cpu: "1"
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
             claimName: postgres-pvc
-
 ---
 apiVersion: v1
 kind: Service
@@ -51,9 +119,7 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-
 ---
-
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
