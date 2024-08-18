@@ -22,10 +22,10 @@ pipeline {
                     step([
                         $class: 'KubernetesEngineBuilder',
                         projectId: env.PROJECT_ID,
-                        cluster: env.CLUSTER,  
-                        location: env.ZONE,  // Ensure this matches the correct zone format
+                        cluster: "${env.CLUSTER} (${env.ZONE})", // Ensure this is correct
+                        location: env.ZONE,
                         manifestPattern: 'postgres-deployment.yaml',
-                        credentialsId: env.GC_KEY,
+                        credentialsId: "${PROJECT_ID}",
                         verifyDeployments: true
                     ])
                 }
